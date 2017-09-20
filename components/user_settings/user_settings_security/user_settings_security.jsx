@@ -447,6 +447,20 @@ export default class SecurityTab extends React.Component {
                         </div>
                     </div>
                 );
+            } else if (this.props.user.auth_service === Constants.OIDC_SERVICE) {
+                inputs.push(
+                    <div
+                        key='oauthEmailInfo'
+                        className='form-group'
+                    >
+                        <div className='setting-list__hint col-sm-12'>
+                            <FormattedMessage
+                                id='user.settings.security.passwordOidcCantUpdate'
+                                defaultMessage='Login occurs through OpenID Connect. Password cannot be updated.'
+                            />
+                        </div>
+                    </div>
+                );
             } else if (this.props.user.auth_service === Constants.LDAP_SERVICE) {
                 inputs.push(
                     <div
@@ -565,6 +579,13 @@ export default class SecurityTab extends React.Component {
                     defaultMessage='Login done through GitLab'
                 />
             );
+        } else if (this.props.user.auth_service === Constants.OIDC_SERVICE) {
+            describe = (
+                <FormattedMessage
+                    id='user.settings.security.loginOidc'
+                    defaultMessage='Login done through OpenID Connect'
+                />
+            );
         } else if (this.props.user.auth_service === Constants.LDAP_SERVICE) {
             describe = (
                 <FormattedMessage
@@ -620,6 +641,7 @@ export default class SecurityTab extends React.Component {
         if (this.props.activeSection === 'signin') {
             let emailOption;
             let gitlabOption;
+            let oidcOption;
             let googleOption;
             let office365Option;
             let ldapOption;
@@ -636,6 +658,23 @@ export default class SecurityTab extends React.Component {
                                 <FormattedMessage
                                     id='user.settings.security.switchGitlab'
                                     defaultMessage='Switch to using GitLab SSO'
+                                />
+                            </Link>
+                            <br/>
+                        </div>
+                    );
+                }
+
+                if (global.window.mm_config.EnableSignUpWithOidc === 'true') {
+                    oidcOption = (
+                        <div className='padding-bottom x2'>
+                            <Link
+                                className='btn btn-primary'
+                                to={'/claim/email_to_oauth?email=' + encodeURIComponent(user.email) + '&old_type=' + user.auth_service + '&new_type=' + Constants.OIDC_SERVICE}
+                            >
+                                <FormattedMessage
+                                    id='user.settings.security.switchOidc'
+                                    defaultMessage='Switch to using OpenID Connect SSO'
                                 />
                             </Link>
                             <br/>
@@ -739,6 +778,7 @@ export default class SecurityTab extends React.Component {
                 <div key='userSignInOption'>
                     {emailOption}
                     {gitlabOption}
+                    {oidcOption}
                     {googleOption}
                     {office365Option}
                     {ldapOption}
@@ -787,6 +827,13 @@ export default class SecurityTab extends React.Component {
                 <FormattedMessage
                     id='user.settings.security.gitlab'
                     defaultMessage='GitLab'
+                />
+            );
+        } else if (this.props.user.auth_service === Constants.OIDC_SERVICE) {
+            describe = (
+                <FormattedMessage
+                    id='user.settings.security.oidc'
+                    defaultMessage='OpenID Connect'
                 />
             );
         } else if (this.props.user.auth_service === Constants.GOOGLE_SERVICE) {
@@ -1352,6 +1399,7 @@ export default class SecurityTab extends React.Component {
 
         let numMethods = 0;
         numMethods = config.EnableSignUpWithGitLab === 'true' ? numMethods + 1 : numMethods;
+        numMethods = config.EnableSignUpOidc === 'true' ? numMethods + 1 : numMethods;
         numMethods = config.EnableSignUpWithGoogle === 'true' ? numMethods + 1 : numMethods;
         numMethods = config.EnableLdap === 'true' ? numMethods + 1 : numMethods;
         numMethods = config.EnableSaml === 'true' ? numMethods + 1 : numMethods;

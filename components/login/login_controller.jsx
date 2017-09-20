@@ -286,6 +286,7 @@ export default class LoginController extends React.Component {
     checkSignUpEnabled() {
         return global.window.mm_config.EnableSignUpWithEmail === 'true' ||
             global.window.mm_config.EnableSignUpWithGitLab === 'true' ||
+            global.window.mm_config.EnableSignUpWithOidc === 'true' ||
             global.window.mm_config.EnableSignUpWithOffice365 === 'true' ||
             global.window.mm_config.EnableSignUpWithGoogle === 'true' ||
             global.window.mm_config.EnableLdap === 'true' ||
@@ -343,6 +344,7 @@ export default class LoginController extends React.Component {
 
         const ldapEnabled = this.state.ldapEnabled;
         const gitlabSigninEnabled = global.window.mm_config.EnableSignUpWithGitLab === 'true';
+        const oidcSigninEnabled = global.window.mm_config.EnableSignUpWithOidc === 'true';
         const googleSigninEnabled = global.window.mm_config.EnableSignUpWithGoogle === 'true';
         const office365SigninEnabled = global.window.mm_config.EnableSignUpWithOffice365 === 'true';
         const samlSigninEnabled = this.state.samlEnabled;
@@ -462,7 +464,7 @@ export default class LoginController extends React.Component {
             );
         }
 
-        if ((emailSigninEnabled || usernameSigninEnabled || ldapEnabled) && (gitlabSigninEnabled || googleSigninEnabled || samlSigninEnabled || office365SigninEnabled)) {
+        if ((emailSigninEnabled || usernameSigninEnabled || ldapEnabled) && (gitlabSigninEnabled || oidcSigninEnabled || googleSigninEnabled || samlSigninEnabled || office365SigninEnabled)) {
             loginControls.push(
                 <div
                     key='divider'
@@ -498,6 +500,26 @@ export default class LoginController extends React.Component {
                             <FormattedMessage
                                 id='login.gitlab'
                                 defaultMessage='GitLab'
+                            />
+                        </span>
+                    </span>
+                </a>
+            );
+        }
+
+        if (oidcSigninEnabled) {
+            loginControls.push(
+                <a
+                    className='btn btn-custom-login oidc'
+                    key='oidc'
+                    href={Client4.getUrl() + '/oauth/oidc/login' + this.props.location.search}
+                >
+                    <span>
+                        <span className='icon'/>
+                        <span>
+                            <FormattedMessage
+                                id='login.oidc'
+                                defaultMessage='OpenID Connect'
                             />
                         </span>
                     </span>

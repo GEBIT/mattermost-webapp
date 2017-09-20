@@ -22,11 +22,13 @@ export default class OAuthSettings extends AdminSettings {
         this.renderOffice365 = this.renderOffice365.bind(this);
         this.renderGoogle = this.renderGoogle.bind(this);
         this.renderGitLab = this.renderGitLab.bind(this);
+        this.renderOidc = this.renderOidc.bind(this);
         this.changeType = this.changeType.bind(this);
     }
 
     getConfigFromState(config) {
         config.GitLabSettings.Enable = false;
+        config.OidcSettings.Enable = false;
         config.GoogleSettings.Enable = false;
         config.Office365Settings.Enable = false;
 
@@ -37,6 +39,15 @@ export default class OAuthSettings extends AdminSettings {
             config.GitLabSettings.UserApiEndpoint = this.state.userApiEndpoint;
             config.GitLabSettings.AuthEndpoint = this.state.authEndpoint;
             config.GitLabSettings.TokenEndpoint = this.state.tokenEndpoint;
+        }
+
+        if (this.state.oauthType === Constants.OIDC_SERVICE) {
+            config.OidcSettings.Enable = true;
+            config.OidcSettings.Id = this.state.id;
+            config.OidcSettings.Secret = this.state.secret;
+            config.OidcSettings.UserApiEndpoint = this.state.userApiEndpoint;
+            config.OidcSettings.AuthEndpoint = this.state.authEndpoint;
+            config.OidcSettings.TokenEndpoint = this.state.tokenEndpoint;
         }
 
         if (this.state.oauthType === Constants.GOOGLE_SERVICE) {
@@ -70,6 +81,9 @@ export default class OAuthSettings extends AdminSettings {
         if (config.GitLabSettings.Enable) {
             oauthType = Constants.GITLAB_SERVICE;
             settings = config.GitLabSettings;
+        } else if (config.OidcSettings.Enable) {
+            oauthType = Constants.OIDC_SERVICE;
+            settings = config.OidcSettings;
         } else if (config.GoogleSettings.Enable) {
             oauthType = Constants.GOOGLE_SERVICE;
             settings = config.GoogleSettings;
@@ -92,6 +106,8 @@ export default class OAuthSettings extends AdminSettings {
         let settings = {};
         if (value === Constants.GITLAB_SERVICE) {
             settings = this.config.GitLabSettings;
+        } else if (value === Constants.OIDC_SERVICE) {
+            settings = this.config.OidcSettings;
         } else if (value === Constants.GOOGLE_SERVICE) {
             settings = this.config.GoogleSettings;
         } else if (value === Constants.OFFICE365_SERVICE) {
@@ -367,6 +383,103 @@ export default class OAuthSettings extends AdminSettings {
         );
     }
 
+    renderOidc() {
+        return (
+            <div>
+                <TextSetting
+                    id='id'
+                    label={
+                        <FormattedMessage
+                            id='admin.oidc.clientIdTitle'
+                            defaultMessage='Application ID:'
+                        />
+                    }
+                    placeholder={Utils.localizeMessage('admin.oidc.clientIdExample', 'Ex "jcuS8PuvcpGhpgHhlcpT1Mx42pnqMxQY"')}
+                    helpText={
+                        <FormattedMessage
+                            id='admin.oidc.clientIdDescription'
+                            defaultMessage='Obtain this value via the instructions above for logging into OpenID Connect'
+                        />
+                    }
+                    value={this.state.id}
+                    onChange={this.handleChange}
+                />
+                <TextSetting
+                    id='secret'
+                    label={
+                        <FormattedMessage
+                            id='admin.oidc.clientSecretTitle'
+                            defaultMessage='Application Secret Key:'
+                        />
+                    }
+                    placeholder={Utils.localizeMessage('admin.oidc.clientSecretExample', 'Ex "jcuS8PuvcpGhpgHhlcpT1Mx42pnqMxQY"')}
+                    helpText={
+                        <FormattedMessage
+                            id='admin.gitab.clientSecretDescription'
+                            defaultMessage='Obtain this value via the instructions above for logging into OpenID Connect.'
+                        />
+                    }
+                    value={this.state.secret}
+                    onChange={this.handleChange}
+                />
+                <TextSetting
+                    id='userApiEndpoint'
+                    label={
+                        <FormattedMessage
+                            id='admin.oidc.userTitle'
+                            defaultMessage='User API Endpoint:'
+                        />
+                    }
+                    placeholder={Utils.localizeMessage('admin.oidc.userExample', 'Ex "https://<your-open-id-url>/api/v3/user"')}
+                    helpText={
+                        <FormattedMessage
+                            id='admin.oidc.userDescription'
+                            defaultMessage='Enter https://<your-open-id-url>/api/v3/user.   Make sure you use HTTP or HTTPS in your URL depending on your server configuration.'
+                        />
+                    }
+                    value={this.state.userApiEndpoint}
+                    onChange={this.handleChange}
+                />
+                <TextSetting
+                    id='authEndpoint'
+                    label={
+                        <FormattedMessage
+                            id='admin.oidc.authTitle'
+                            defaultMessage='Auth Endpoint:'
+                        />
+                    }
+                    placeholder={Utils.localizeMessage('admin.oidc.authExample', 'Ex "https://<your-open-id-url>/oauth/authorize"')}
+                    helpText={
+                        <FormattedMessage
+                            id='admin.oidc.authDescription'
+                            defaultMessage='Enter https://<your-open-id-url>/oauth/authorize (example https://example.com:3000/oauth/authorize).   Make sure you use HTTP or HTTPS in your URL depending on your server configuration.'
+                        />
+                    }
+                    value={this.state.authEndpoint}
+                    onChange={this.handleChange}
+                />
+                <TextSetting
+                    id='tokenEndpoint'
+                    label={
+                        <FormattedMessage
+                            id='admin.oidc.tokenTitle'
+                            defaultMessage='Token Endpoint:'
+                        />
+                    }
+                    placeholder={Utils.localizeMessage('admin.oidc.tokenExample', 'Ex "https://<your-open-id-url>/oauth/token"')}
+                    helpText={
+                        <FormattedMessage
+                            id='admin.oidc.tokenDescription'
+                            defaultMessage='Enter https://<your-open-id-url>/oauth/token.   Make sure you use HTTP or HTTPS in your URL depending on your server configuration.'
+                        />
+                    }
+                    value={this.state.tokenEndpoint}
+                    onChange={this.handleChange}
+                />
+            </div>
+        );
+    }
+
     renderSettings() {
         let contents;
         let helpText;
@@ -376,6 +489,14 @@ export default class OAuthSettings extends AdminSettings {
                 <FormattedHTMLMessage
                     id='admin.gitlab.EnableHtmlDesc'
                     defaultMessage='<ol><li>Log in to your GitLab account and go to Profile Settings -> Applications.</li><li>Enter Redirect URIs "<your-mattermost-url>/login/gitlab/complete" (example: http://localhost:8065/login/gitlab/complete) and "<your-mattermost-url>/signup/gitlab/complete". </li><li>Then use "Application Secret Key" and "Application ID" fields from GitLab to complete the options below.</li><li>Complete the Endpoint URLs below. </li></ol>'
+                />
+            );
+        } else if (this.state.oauthType === Constants.OIDC_SERVICE) {
+            contents = this.renderOidc();
+            helpText = (
+                <FormattedHTMLMessage
+                    id='admin.oidc.EnableHtmlDesc'
+                    defaultMessage='<ol><li>Log in to your OpenID Connect account and go to Profile Settings -> Applications.</li><li>Enter Redirect URIs "<your-mattermost-url>/login/oidc/complete" (example: http://localhost:8065/login/oidc/complete) and "<your-mattermost-url>/signup/oidc/complete". </li><li>Then use "Application Secret Key" and "Application ID" fields from OpenID Connect to complete the options below.</li><li>Complete the Endpoint URLs below. </li></ol>'
                 />
             );
         } else if (this.state.oauthType === Constants.GOOGLE_SERVICE) {
@@ -399,6 +520,7 @@ export default class OAuthSettings extends AdminSettings {
         const oauthTypes = [];
         oauthTypes.push({value: 'off', text: Utils.localizeMessage('admin.oauth.off', 'Do not allow sign-in via an OAuth 2.0 provider.')});
         oauthTypes.push({value: Constants.GITLAB_SERVICE, text: Utils.localizeMessage('admin.oauth.gitlab', 'GitLab')});
+        oauthTypes.push({value: Constants.OIDC_SERVICE, text: Utils.localizeMessage('admin.oauth.oidc', 'OpenID Connect')});
         if (global.window.mm_license.IsLicensed === 'true') {
             if (global.window.mm_license.GoogleOAuth === 'true') {
                 oauthTypes.push({value: Constants.GOOGLE_SERVICE, text: Utils.localizeMessage('admin.oauth.google', 'Google Apps')});

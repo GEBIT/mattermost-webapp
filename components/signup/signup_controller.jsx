@@ -173,6 +173,26 @@ export default class SignupController extends React.Component {
             );
         }
 
+        if (global.window.mm_config.EnableSignUpWithOidc === 'true') {
+            signupControls.push(
+                <a
+                    className='btn btn-custom-login btn--full oidc'
+                    key='oidc'
+                    href={Client4.getOAuthRoute() + '/oidc/signup' + window.location.search}
+                >
+                    <span>
+                        <span className='icon'/>
+                        <span>
+                            <FormattedMessage
+                                id='signup.oidc'
+                                defaultMessage='OpenID Connect Single Sign-On'
+                            />
+                        </span>
+                    </span>
+                </a>
+            );
+        }
+
         if (global.window.mm_license.IsLicensed === 'true' && global.window.mm_config.EnableSignUpWithGoogle === 'true') {
             signupControls.push(
                 <a

@@ -14,6 +14,7 @@ import PolicySettings from 'components/admin_console/policy_settings.jsx';
 import LogSettings from 'components/admin_console/log_settings.jsx';
 import EmailAuthenticationSettings from 'components/admin_console/email_authentication_settings.jsx';
 import GitLabSettings from 'components/admin_console/gitlab_settings.jsx';
+import OidcSettings from 'components/admin_console/oidc_settings.jsx';
 import OAuthSettings from 'components/admin_console/oauth_settings.jsx';
 import LdapSettings from 'components/admin_console/ldap_settings.jsx';
 import SamlSettings from 'components/admin_console/saml_settings.jsx';
@@ -97,6 +98,10 @@ export default (
             <Route
                 path='gitlab'
                 component={GitLabSettings}
+            />
+            <Route
+                path='oidc'
+                component={OidcSettings}
             />
             <Route
                 path='oauth'
